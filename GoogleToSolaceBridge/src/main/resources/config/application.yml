@@ -13,12 +13,6 @@ spring:
           binder: pubsub
           consumer:
             concurrency: 1
-        bridgeGcpToSolace2-in-0:
-          destination: taxiupdate
-          group: group
-          binder: pubsub
-          consumer:
-            concurrency: 1
 solace:
   java:
     host: ${host:tcp://localhost:55555}
@@ -34,7 +28,7 @@ solace:
     client-name: GoogleToSolaceBridge
 logging:
   level:
-    root: warn
+    root: info
     org:
       springframework: info
 server:

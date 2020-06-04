@@ -1,6 +1,7 @@
 
 package org.taxi.nyc;
 
+import java.util.Date;
 import java.util.function.Consumer;
 
 import javax.annotation.PostConstruct;
@@ -14,25 +15,27 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.jms.JmsException;
-import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 import org.springframework.jms.connection.CachingConnectionFactory;
 import org.springframework.jms.core.JmsTemplate;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @SpringBootApplication
+@EnableScheduling
 public class Application {
 
 	private static final Logger logger = LoggerFactory.getLogger(Application.class);
 
 	@Autowired
 	private JmsTemplate jmsTemplate = null;
-
-	@Autowired
-	private JmsTemplate jmsTemplate2 = null;
+	
 	private ObjectMapper mapper = new ObjectMapper();
 	private String topicPrefix = "taxi/nyc/v1/";
+	private long counter=0;
+	private Date startTime;
 
 	public static void main(String[] args) {
 		SpringApplication.run(Application.class);
@@ -55,7 +58,10 @@ public class Application {
 					+ latitude;
 			try {
 				jmsTemplate.convertAndSend(topic, mapper.writeValueAsString(input));
-				logger.info("Sending " + input + " to topic:" + topic);
+				if(logger.isDebugEnabled()) {
+					logger.debug("Sent " + input + " to topic:" + topic);
+				}
+       			counter++;
 			} catch (JmsException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -64,40 +70,11 @@ public class Application {
 				e.printStackTrace();
 			}
 
-		};
-	}
-
-	@Bean
-	public Consumer<TaxiStatusUpdatePayload> bridgeGcpToSolace2() {
-		return input -> {
-			Double latitude = input.getLatitude();
-			Double longitude = input.getLongitude();
-			Double meterIncrement = input.getMeterIncrement();
-			Double meterReading = input.getMeterReading();
-			Integer passengerCount = input.getPassengerCount();
-			Integer pointIdx = input.getPointIdx();
-			String rideId = input.getRideId();
-			String rideStatus = input.getRideStatus();
-			String timestamp = input.getTimestamp();
-
-			String topic = topicPrefix + rideStatus + "/" + passengerCount + "/" + rideId + "/" + longitude + "/"
-					+ latitude;
-			try {
-				jmsTemplate2.convertAndSend(topic, mapper.writeValueAsString(input));
-//				logger.info("Sending "+input+" to topic:"+topic);
-			} catch (JmsException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (JsonProcessingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
 		};
 	}
 
 	@PostConstruct
-	private void fixJMSTemplate() {
+	private void configureJMSTemplate() {
 		// Code that makes the JMS Template Cache Connections for Performance.
 		CachingConnectionFactory ccf = new CachingConnectionFactory();
 		ConnectionFactory cf = jmsTemplate.getConnectionFactory();
@@ -110,19 +87,17 @@ public class Application {
 		jmsTemplate.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
 		jmsTemplate.setPriority(0);
 	}
-	
 
+	@Scheduled(fixedDelay=10000)
+	public void printCount() {
+        logger.info("Message Sent Count: "+ counter);
+        Date currentTime = new Date();
+        long seconds = ((currentTime.getTime() - startTime.getTime()) / 1000 );
+        logger.info("Average Messages Per Second since Start: "+ Math.floorDiv(counter, seconds));
+	}
+	
 	@PostConstruct
-	private void fixJMSTemplate2() {
-		// Code that makes the JMS Template Cache Connections for Performance.
-		CachingConnectionFactory ccf = new CachingConnectionFactory();
-		ccf.setTargetConnectionFactory(jmsTemplate2.getConnectionFactory());
-		jmsTemplate2.setConnectionFactory(ccf);
-		jmsTemplate2.setExplicitQosEnabled(true);
-		jmsTemplate2.setPubSubDomain(true);
-		jmsTemplate2.setTimeToLive(24 * 60 * 60 * 1000);
-		jmsTemplate2.setDeliveryPersistent(false);
-		jmsTemplate2.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
-		jmsTemplate2.setPriority(0);
+	private void setStartTime() {
+		startTime = new Date();
 	}
 }
