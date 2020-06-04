@@ -13,6 +13,12 @@ spring:
           binder: pubsub
           consumer:
             concurrency: 1
+        bridgeGcpToSolace2-in-0:
+          destination: taxiupdate
+          group: group
+          binder: pubsub
+          consumer:
+            concurrency: 1
 solace:
   java:
     host: ${host:tcp://localhost:55555}
@@ -21,16 +27,18 @@ solace:
     clientPassword: ${clientPassword:default}
   jms:
     host: ${host:tcp://localhost:55555}
-    msgVpn: ${msgVpn:default}
-    clientUsername: ${clientUsername:default}
-    clientPassword: ${clientPassword:default}
+    msg-vpn: ${msgVpn:default}
+    client-username: ${clientUsername:default}
+    client-password: ${clientPassword:default}
+    direct-transport: true
+    client-name: GoogleToSolaceBridge
 logging:
   level:
-    root: info
+    root: warn
     org:
       springframework: info
 server:
-  port: 8080
+  port: 8081
 management:
   endpoints:
     web:
