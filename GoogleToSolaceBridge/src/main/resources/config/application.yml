@@ -19,6 +19,11 @@ solace:
     msgVpn: ${msgVpn:default}
     clientUsername: ${clientUsername:default}
     clientPassword: ${clientPassword:default}
+  jms:
+    host: ${host:tcp://localhost:55555}
+    msgVpn: ${msgVpn:default}
+    clientUsername: ${clientUsername:default}
+    clientPassword: ${clientPassword:default}
 logging:
   level:
     root: info

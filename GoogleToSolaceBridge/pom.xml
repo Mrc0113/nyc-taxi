@@ -48,6 +48,10 @@
 			<artifactId>spring-cloud-starter-stream-solace</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>com.solace.spring.boot</groupId>
+			<artifactId>solace-spring-boot-starter</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-gcp-pubsub-stream-binder</artifactId>
 		</dependency>
