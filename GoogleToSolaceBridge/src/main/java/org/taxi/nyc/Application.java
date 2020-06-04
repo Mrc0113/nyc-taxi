@@ -34,7 +34,7 @@ public class Application {
 		    String rideStatus = input.getRideStatus();
 		    String timestamp = input.getTimestamp();
 		    
-			String topic = "nyc/taxi/v1/"+rideStatus+"/"+passengerCount+"/"+rideId+"/"+longitude+"/"+latitude;  
+			String topic = "taxi/nyc/v1/"+rideStatus+"/"+passengerCount+"/"+rideId+"/"+longitude+"/"+latitude;  
 			streamBridge.send(topic, input);
 		};
 	}
