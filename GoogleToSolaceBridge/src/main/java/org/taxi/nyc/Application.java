@@ -31,10 +31,10 @@ public class Application {
 
 	@Autowired
 	private JmsTemplate jmsTemplate = null;
-	
+
 	private ObjectMapper mapper = new ObjectMapper();
 	private String topicPrefix = "taxi/nyc/v1/";
-	private long counter=0;
+	private long counter = 0;
 	private Date startTime;
 
 	public static void main(String[] args) {
@@ -58,10 +58,10 @@ public class Application {
 					+ latitude;
 			try {
 				jmsTemplate.convertAndSend(topic, mapper.writeValueAsString(input));
-				if(logger.isDebugEnabled()) {
+				if (logger.isDebugEnabled()) {
 					logger.debug("Sent " + input + " to topic:" + topic);
 				}
-       			counter++;
+				counter++;
 			} catch (JmsException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -88,14 +88,14 @@ public class Application {
 		jmsTemplate.setPriority(0);
 	}
 
-	@Scheduled(fixedDelay=10000)
+	@Scheduled(fixedDelay = 10000)
 	public void printCount() {
-        logger.info("Message Sent Count: "+ counter);
-        Date currentTime = new Date();
-        long seconds = ((currentTime.getTime() - startTime.getTime()) / 1000 );
-        logger.info("Average Messages Per Second since Start: "+ Math.floorDiv(counter, seconds));
+		logger.info("Message Sent Count: " + counter);
+		Date currentTime = new Date();
+		long seconds = ((currentTime.getTime() - startTime.getTime()) / 1000);
+		logger.info("Average Messages Per Second since Start: " + Math.floorDiv(counter, seconds));
 	}
-	
+
 	@PostConstruct
 	private void setStartTime() {
 		startTime = new Date();
