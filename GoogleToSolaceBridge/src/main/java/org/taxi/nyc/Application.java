@@ -53,6 +53,11 @@ public class Application {
 			String rideId = input.getRideId();
 			String rideStatus = input.getRideStatus();
 			String timestamp = input.getTimestamp();
+			
+//			String latFormat = "%010.6f";
+//			String lonFormat = "%011.6f";
+//			String latTopic = String.format(latFormat,lat);
+//			String lonTopic = String.format(lonFormat,lon);
 
 			String topic = topicPrefix + rideStatus + "/" + passengerCount + "/" + rideId + "/" + longitude + "/"
 					+ latitude;
